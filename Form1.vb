@@ -1,8 +1,5 @@
 ﻿Imports System.IO
 Imports System.Net
-Imports System.Runtime.InteropServices
-Imports System.Security.Policy
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 
 Public Class Form1
@@ -23,40 +20,42 @@ Public Class Form1
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         UpdatePaths()
-        UpdateFullPaths(0)
+        UpdateFullPaths(0, 0)
     End Sub
 
     Private Sub DownloadButton_Click(sender As Object, e As EventArgs) Handles DownloadButton.Click
         DownloadButton.Enabled = False
         Cursor = Cursors.WaitCursor
-
+        Dim filePath As String = ""
         Try
 
-            ' Loop through the suffixes 00 to 23
+            ' Loop through the hours and half-hours
             For hour As Integer = 0 To 23
-                UpdateFullPaths(hour)
+                For minute As Integer = 0 To 30 Step 30
+                    UpdateFullPaths(hour, minute)
 
-                ' make sure the folder exists
-                ' Parse the file name to get the directory path
-                Dim filePath As String = Path.GetDirectoryName(localFile)
+                    ' make sure the folder exists
+                    ' Parse the file name to get the directory path
+                    filePath = Path.GetDirectoryName(localFile)
 
-                ' Check if the directory exists
-                If Not Directory.Exists(filePath) Then
-                    ' If the directory does not exist, create it
-                    Directory.CreateDirectory(filePath)
-                End If
+                    ' Check if the directory exists
+                    If Not Directory.Exists(filePath) Then
+                        ' If the directory does not exist, create it
+                        Directory.CreateDirectory(filePath)
+                    End If
 
-                ' Create a new WebClient instance
-                Dim client As WebClient = New WebClient()
+                    ' Create a new WebClient instance
+                    Dim client As WebClient = New WebClient()
 
-                ' Download the image from the URL and save it to the local file
+                    ' Download the image from the URL and save it to the local file
+                    Try
+                        client.DownloadFile(imageUrl, localFile)
+                    Catch ex As Exception
+                    End Try
 
-                client.DownloadFile(imageUrl, localFile)
-
-
-
-                ' Dispose of the WebClient instance to free up resources
-                client.Dispose()
+                    ' Dispose of the WebClient instance to free up resources
+                    client.Dispose()
+                Next
             Next
 
         Catch ex As Exception
@@ -66,12 +65,6 @@ Public Class Form1
         Cursor = Cursors.Default
         DownloadButton.Enabled = True
     End Sub
-
-    Private Sub DateTimePicker1_ValueChanged(sender As Object, e As EventArgs) Handles DateTimePicker1.ValueChanged
-        UpdatePaths()
-        UpdateFullPaths(0)
-    End Sub
-
 
     Private Sub UpdatePaths()
 
@@ -89,11 +82,11 @@ Public Class Form1
     End Sub
 
 
-    Private Sub UpdateFullPaths(hour As Integer)
+    Private Sub UpdateFullPaths(hour As Integer, minute As Integer)
         ' Construct the full image URL
-        imageUrl = urlBase & hour.ToString("00") & ".gif"
+        imageUrl = urlBase & hour.ToString("00") & minute.ToString("00") & ".gif"
         ' Construct the full local file path
-        localFile = LocalPathBase & hour.ToString("00") & ".gif"
+        localFile = LocalPathBase & hour.ToString("00") & minute.ToString("00") & ".gif"
 
         FolderLabel.Text = localFile
         FolderLabel.Refresh()
@@ -102,14 +95,19 @@ Public Class Form1
         urlLabel.Refresh()
     End Sub
 
+    ' Overload to maintain compatibility with existing references
+    Private Sub UpdateFullPaths(hour As Integer)
+        UpdateFullPaths(hour, 0)
+    End Sub
+
     Private Sub localfolderTextBox_TextChanged(sender As Object, e As EventArgs) Handles localfolderTextBox.TextChanged
         UpdatePaths()
-        UpdateFullPaths(0)
+        UpdateFullPaths(0, 0)
     End Sub
 
     Private Sub urlTextBox_TextChanged(sender As Object, e As EventArgs) Handles urlTextBox.TextChanged
         UpdatePaths()
-        UpdateFullPaths(0)
+        UpdateFullPaths(0, 0)
     End Sub
 
     Private Sub FolderBrowseButton_Click(sender As Object, e As EventArgs) Handles FolderBrowseButton.Click

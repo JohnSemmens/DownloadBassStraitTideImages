@@ -50,7 +50,7 @@ Partial Class Form1
         Me.urlTextBox.Name = "urlTextBox"
         Me.urlTextBox.Size = New System.Drawing.Size(343, 20)
         Me.urlTextBox.TabIndex = 1
-        Me.urlTextBox.Text = "http://oceancurrent.imos.org.au/tides/Bass_spd"
+        Me.urlTextBox.Text = "https://oceancurrent.aodn.org.au/tides/Bass_spd"
         '
         'localfolderTextBox
         '
